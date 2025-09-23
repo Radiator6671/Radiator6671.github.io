@@ -1,0 +1,477 @@
+<!-- Chosen Palette: Warm & Welcoming -->
+<!-- Application Structure Plan: A section-based SPA with five main content areas (Overview, Interactive Itinerary, Travel Logistics, Highlights Comparison, and Budget Planner), navigated by a sticky header. The new 'Highlights Comparison' section is added to provide a thematic, interest-based view of the trip. Key interactions include an interactive daily itinerary, a dynamic budget planner, and now, a filterable grid of destination highlights. This interactive dashboard approach is more user-centric and functional for trip planning than a static report. -->
+<!-- Visualization & Content Choices: 1. Itinerary: Goal: Organize/Inform. Method: Interactive vertical timeline with JS-powered expandable sections. Justification: Prevents information overload. 2. Travel Logistics: Goal: Compare. Method: Chart.js horizontal bar chart. Justification: Best for comparing durations with long labels. 3. Highlights Comparison: Goal: Compare/Organize. Method: HTML/CSS grid with JS-powered filtering. Justification: Allows users to instantly sort destinations by interest, aiding in decision-making. 4. Budget Planner: Goal: Interact/Inform. Method: Chart.js donut chart dynamically linked to HTML sliders via JavaScript. Justification: Provides a powerful, personalized planning tool. CONFIRMING NO SVG/Mermaid. -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>北方风光7日深度游 - 交互式旅行规划</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #FEF9F3;
+            color: #4A4A4A;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 450px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #D95550;
+            border-bottom-color: #D95550;
+        }
+        .details-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .details-content.open {
+            max-height: 500px;
+        }
+        .highlight-card {
+            transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+        }
+        .highlight-card.filtered {
+            opacity: 0.3;
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="bg-[#2A3D45] text-white p-6 text-center sticky top-0 z-50 shadow-lg">
+        <h1 class="text-3xl md:text-4xl font-bold">北方风光7日深度游</h1>
+        <p class="text-lg font-light">一个交互式旅行规划应用</p>
+    </header>
+
+    <nav class="bg-white/80 backdrop-blur-md py-4 sticky top-[88px] z-40 shadow-sm">
+        <div class="container mx-auto flex justify-center flex-wrap gap-x-4 md:gap-x-8">
+            <a href="#overview" class="nav-link text-lg font-semibold pb-1 border-b-2 border-transparent">行程概览</a>
+            <a href="#itinerary" class="nav-link text-lg font-semibold pb-1 border-b-2 border-transparent">每日行程</a>
+            <a href="#logistics" class="nav-link text-lg font-semibold pb-1 border-b-2 border-transparent">旅行分析</a>
+            <a href="#highlights" class="nav-link text-lg font-semibold pb-1 border-b-2 border-transparent">亮点对比</a>
+            <a href="#budget" class="nav-link text-lg font-semibold pb-1 border-b-2 border-transparent">预算规划</a>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section id="overview" class="my-8 scroll-mt-32">
+            <h2 class="text-3xl font-bold text-center mb-4 text-[#C53211]">踏上探索之旅</h2>
+            <p class="text-lg max-w-3xl mx-auto text-center text-gray-600 mb-12">
+                欢迎使用您的专属旅行规划器。本应用将带您领略从山西的历史厚重到内蒙古的广袤草原，再到宁夏的塞上风光。这是一个快节奏、高密度的行程，旨在最大化您的七日假期。请使用下方工具探索和定制您的旅程。
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+                    <div class="text-5xl font-bold text-[#D95550]">8</div>
+                    <div class="text-xl text-gray-700 mt-2">城市与地区</div>
+                    <p class="text-gray-500 mt-2">跨越山西、内蒙古和宁夏，体验不同的文化风情。</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+                    <div class="text-5xl font-bold text-[#F4A261]">7</div>
+                    <div class="text-xl text-gray-700 mt-2">充实旅行日</div>
+                    <p class="text-gray-500 mt-2">精心安排的每日活动，确保每一刻都充满惊喜。</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+                    <div class="text-5xl font-bold text-[#2A9D8F]">~2000公里</div>
+                    <div class="text-xl text-gray-700 mt-2">总行程</div>
+                    <p class="text-gray-500 mt-2">见证中国北方壮丽的地貌变迁。</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="itinerary" class="my-16 scroll-mt-32">
+            <h2 class="text-3xl font-bold text-center mb-12 text-[#C53211]">交互式每日行程</h2>
+            <div class="max-w-4xl mx-auto">
+                <!-- Day 1 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-[#D95550]">第一天</p>
+                            <h3 class="text-2xl font-bold text-[#2A3D45]">大同：古都的召唤</h3>
+                        </div>
+                        <button class="toggle-details bg-[#F4A261] text-white rounded-full px-4 py-2 font-semibold">详情</button>
+                    </div>
+                    <div class="details-content mt-4 border-t pt-4">
+                        <p><strong>核心景点:</strong> 世界文化遗产——云冈石窟。</p>
+                        <p><strong>行程建议:</strong> 抵达大同后，直奔云冈石窟，感受北魏王朝的艺术瑰宝。傍晚时分，可以登上修复后的大同古城墙，欣赏古都夜景。</p>
+                        <p class="mt-2"><strong>美食推荐:</strong> 刀削面、浑源凉粉、羊杂。</p>
+                    </div>
+                </div>
+                <!-- Day 2 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-[#D95550]">第二天</p>
+                            <h3 class="text-2xl font-bold text-[#2A3D45]">呼和浩特：青城风情</h3>
+                        </div>
+                        <button class="toggle-details bg-[#F4A261] text-white rounded-full px-4 py-2 font-semibold">详情</button>
+                    </div>
+                    <div class="details-content mt-4 border-t pt-4">
+                        <p><strong>核心景点:</strong> 大召寺、塞上老街。</p>
+                        <p><strong>行程建议:</strong> 乘坐早上的高铁从大同前往呼和浩特。下午参观内蒙古现存最大、最完整的藏传佛教寺庙大召寺，之后在塞上老街品尝特色小吃，购买纪念品。</p>
+                        <p class="mt-2"><strong>美食推荐:</strong> 烧麦、手扒肉、奶茶。</p>
+                    </div>
+                </div>
+                <!-- Day 3 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-[#D95550]">第三天</p>
+                            <h3 class="text-2xl font-bold text-[#2A3D45]">包头 & 鄂尔多斯：钢铁之城与天骄圣地</h3>
+                        </div>
+                        <button class="toggle-details bg-[#F4A261] text-white rounded-full px-4 py-2 font-semibold">详情</button>
+                    </div>
+                    <div class="details-content mt-4 border-t pt-4">
+                        <p><strong>核心景点:</strong> 成吉思汗陵。</p>
+                        <p><strong>行程建议:</strong> 上午抵达包头，短暂游览市区后，驱车前往鄂尔多斯。下午的重点是雄伟的成吉思汗陵，了解这位一代天骄的传奇历史。</p>
+                        <p class="mt-2"><strong>美食推荐:</strong> 鄂尔多斯酸奶、蒙古馅饼。</p>
+                    </div>
+                </div>
+                <!-- Day 4 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-[#D95550]">第四天</p>
+                            <h3 class="text-2xl font-bold text-[#2A3D45]">巴彦淖尔：塞上江南风光</h3>
+                        </div>
+                        <button class="toggle-details bg-[#F4A261] text-white rounded-full px-4 py-2 font-semibold">详情</button>
+                    </div>
+                    <div class="details-content mt-4 border-t pt-4">
+                        <p><strong>核心景点:</strong> 河套灌区、黄河三盛公水利枢纽。</p>
+                        <p><strong>行程建议:</strong> 前往被誉为“塞上江南”的巴彦淖尔。这里是黄河文明的重要组成部分。参观河套平原的灌溉系统，感受人类智慧如何将半干旱地区变为沃野千里。这里是真正的塞外鱼米之乡。</p>
+                        <p class="mt-2"><strong>美食推荐:</strong> 黄河鲤鱼、河套蜜瓜。</p>
+                    </div>
+                </div>
+                <!-- Day 5 & 6 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-[#D95550]">第五、六天</p>
+                            <h3 class="text-2xl font-bold text-[#2A3D45]">银川 & 阿拉善：西夏古都与沙漠探险</h3>
+                        </div>
+                        <button class="toggle-details bg-[#F4A261] text-white rounded-full px-4 py-2 font-semibold">详情</button>
+                    </div>
+                    <div class="details-content mt-4 border-t pt-4">
+                        <p><strong>核心景点:</strong> 西夏王陵、腾格里沙漠。</p>
+                        <p><strong>行程建议:</strong> 第五天抵达银川，探访神秘的“东方金字塔”西夏王陵。第六天，安排一次激动人心的阿拉善盟一日游，深入腾格里沙漠腹地，体验沙漠越野的刺激，欣赏大漠孤烟直的壮丽景色。</p>
+                        <p class="mt-2"><strong>美食推荐:</strong> 手抓羊肉、烩羊杂碎、中卫硒砂瓜。</p>
+                    </div>
+                </div>
+                 <!-- Day 7 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-[#D95550]">第七天</p>
+                            <h3 class="text-2xl font-bold text-[#2A3D45]">银川：告别之旅</h3>
+                        </div>
+                        <button class="toggle-details bg-[#F4A261] text-white rounded-full px-4 py-2 font-semibold">详情</button>
+                    </div>
+                    <div class="details-content mt-4 border-t pt-4">
+                        <p><strong>核心景点:</strong> 中国枸杞馆。</p>
+                        <p><strong>行程建议:</strong> 在离开前，可以去中国枸杞馆了解宁夏的“红色名片”，购买一些地道特产。之后前往银川河东国际机场，结束愉快的旅程。</p>
+                        <p class="mt-2"><strong>温馨提示:</strong> 请根据您的航班时间灵活安排当日活动。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="logistics" class="my-16 scroll-mt-32">
+            <h2 class="text-3xl font-bold text-center mb-12 text-[#C53211]">旅行交通分析</h2>
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-gray-200">
+                 <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">本行程主要依赖高铁和包车/长途汽车相结合的方式。高铁保证了主要城市间的高效连接，而包车则为探索更偏远的景点提供了灵活性。下图展示了各主要路段的大致行车时间。</p>
+                <div class="chart-container">
+                    <canvas id="travelTimeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="highlights" class="my-16 scroll-mt-32">
+            <h2 class="text-3xl font-bold text-center mb-4 text-[#C53211]">行程亮点对比</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">您的旅程融合了多种体验。点击下方按钮，筛选出您最感兴趣的目的地类型，看看它们都分布在哪几天。</p>
+            <div id="filter-container" class="flex justify-center flex-wrap gap-4 mb-10">
+                <button data-filter="all" class="filter-btn bg-[#2A3D45] text-white px-6 py-2 rounded-full font-semibold">全部</button>
+                <button data-filter="history" class="filter-btn bg-white text-[#2A3D45] px-6 py-2 rounded-full font-semibold border-2 border-[#2A3D45]">历史古迹</button>
+                <button data-filter="nature" class="filter-btn bg-white text-[#2A3D45] px-6 py-2 rounded-full font-semibold border-2 border-[#2A3D45]">自然风光</button>
+                <button data-filter="culture" class="filter-btn bg-white text-[#2A3D45] px-6 py-2 rounded-full font-semibold border-2 border-[#2A3D45]">城市文化</button>
+            </div>
+            <div id="highlights-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="highlight-card bg-white rounded-xl shadow-lg p-6 border border-gray-200" data-category="history">
+                    <div class="text-4xl mb-3">🏛️</div>
+                    <h3 class="text-xl font-bold">大同</h3><p class="text-gray-500">云冈石窟</p>
+                </div>
+                <div class="highlight-card bg-white rounded-xl shadow-lg p-6 border border-gray-200" data-category="culture">
+                    <div class="text-4xl mb-3">🏮</div>
+                    <h3 class="text-xl font-bold">呼和浩特</h3><p class="text-gray-500">大召寺与老街</p>
+                </div>
+                 <div class="highlight-card bg-white rounded-xl shadow-lg p-6 border border-gray-200" data-category="history">
+                    <div class="text-4xl mb-3">🕌</div>
+                    <h3 class="text-xl font-bold">鄂尔多斯</h3><p class="text-gray-500">成吉思汗陵</p>
+                </div>
+                <div class="highlight-card bg-white rounded-xl shadow-lg p-6 border border-gray-200" data-category="nature">
+                     <div class="text-4xl mb-3">🌾</div>
+                    <h3 class="text-xl font-bold">巴彦淖尔</h3><p class="text-gray-500">河套灌区</p>
+                </div>
+                <div class="highlight-card bg-white rounded-xl shadow-lg p-6 border border-gray-200" data-category="history">
+                    <div class="text-4xl mb-3">👑</div>
+                    <h3 class="text-xl font-bold">银川</h3><p class="text-gray-500">西夏王陵</p>
+                </div>
+                <div class="highlight-card bg-white rounded-xl shadow-lg p-6 border border-gray-200" data-category="nature">
+                    <div class="text-4xl mb-3">🏜️</div>
+                    <h3 class="text-xl font-bold">阿拉善</h3><p class="text-gray-500">腾格里沙漠</p>
+                </div>
+                <div class="highlight-card bg-white rounded-xl shadow-lg p-6 border border-gray-200" data-category="culture">
+                     <div class="text-4xl mb-3">🏙️</div>
+                    <h3 class="text-xl font-bold">包头</h3><p class="text-gray-500">工业城市景观</p>
+                </div>
+                <div class="highlight-card bg-white rounded-xl shadow-lg p-6 border border-gray-200" data-category="culture">
+                    <div class="text-4xl mb-3">🍇</div>
+                    <h3 class="text-xl font-bold">宁夏特产</h3><p class="text-gray-500">枸杞文化</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="budget" class="my-16 scroll-mt-32">
+            <h2 class="text-3xl font-bold text-center mb-12 text-[#C53211]">动态预算规划器</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-gray-200">
+                    <h3 class="text-2xl font-bold text-center mb-6 text-[#2A3D45]">费用构成</h3>
+                    <div class="chart-container h-[300px] md:h-[350px]">
+                        <canvas id="budgetChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-gray-200">
+                    <h3 class="text-2xl font-bold text-center mb-6 text-[#2A3D45]">调整您的预算 (元/人)</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="transportSlider" class="font-semibold">城际交通: <span id="transportValue">2000</span>元</label>
+                            <input id="transportSlider" type="range" min="1000" max="4000" value="2000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" style="accent-color: #D95550;">
+                        </div>
+                        <div>
+                            <label for="accomSlider" class="font-semibold">住宿 (6晚): <span id="accomValue">1800</span>元</label>
+                            <input id="accomSlider" type="range" min="600" max="6000" value="1800" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" style="accent-color: #F4A261;">
+                        </div>
+                        <div>
+                            <label for="foodSlider" class="font-semibold">餐饮美食: <span id="foodValue">1400</span>元</label>
+                            <input id="foodSlider" type="range" min="700" max="3500" value="1400" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" style="accent-color: #E9C46A;">
+                        </div>
+                        <div>
+                            <label for="activitySlider" class="font-semibold">门票活动: <span id="activityValue">1000</span>元</label>
+                            <input id="activitySlider" type="range" min="500" max="2500" value="1000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" style="accent-color: #2A9D8F;">
+                        </div>
+                        <div class="border-t-2 border-dashed pt-6 text-center">
+                            <p class="text-lg text-gray-600">预估总费用</p>
+                            <p class="text-4xl font-bold text-[#C53211]" id="totalCost">6200 元/人</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-[#2A3D45] text-white text-center p-6 mt-8">
+        <p>&copy; 2025 交互式旅行规划应用。祝您旅途愉快！</p>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        const travelTimeCtx = document.getElementById('travelTimeChart').getContext('2d');
+        new Chart(travelTimeCtx, {
+            type: 'bar',
+            data: {
+                labels: ['大同 → 呼和浩特', '呼和浩特 → 包头', '包头 → 鄂尔多斯', '鄂尔多斯 → 巴彦淖尔', '巴彦淖尔 → 银川', '银川 → 阿拉善'],
+                datasets: [{
+                    label: '预估旅行时间 (小时)',
+                    data: [2.5, 2, 1.5, 3, 4, 3],
+                    backgroundColor: ['#D95550', '#F4A261', '#E9C46A', '#2A9D8F', '#264653', '#E76F51'],
+                    borderRadius: 5,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: { beginAtZero: true, grid: { color: '#e0e0e0' } },
+                    y: { grid: { display: false } }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#2A3D45',
+                        titleFont: { size: 16 },
+                        bodyFont: { size: 14 },
+                        padding: 10,
+                        cornerRadius: 5
+                    }
+                }
+            }
+        });
+
+        const budgetCtx = document.getElementById('budgetChart').getContext('2d');
+        let budgetChart;
+
+        const sliders = {
+            transport: document.getElementById('transportSlider'),
+            accom: document.getElementById('accomSlider'),
+            food: document.getElementById('foodSlider'),
+            activity: document.getElementById('activitySlider')
+        };
+        
+        const valueSpans = {
+            transport: document.getElementById('transportValue'),
+            accom: document.getElementById('accomValue'),
+            food: document.getElementById('foodValue'),
+            activity: document.getElementById('activityValue')
+        };
+
+        const totalCostEl = document.getElementById('totalCost');
+
+        function updateBudget() {
+            const transportCost = parseInt(sliders.transport.value);
+            const accomCost = parseInt(sliders.accom.value);
+            const foodCost = parseInt(sliders.food.value);
+            const activityCost = parseInt(sliders.activity.value);
+
+            valueSpans.transport.textContent = transportCost;
+            valueSpans.accom.textContent = accomCost;
+            valueSpans.food.textContent = foodCost;
+            valueSpans.activity.textContent = activityCost;
+
+            const total = transportCost + accomCost + foodCost + activityCost;
+            totalCostEl.textContent = `${total} 元/人`;
+
+            const newData = [transportCost, accomCost, foodCost, activityCost];
+
+            if (budgetChart) {
+                budgetChart.data.datasets[0].data = newData;
+                budgetChart.update();
+            }
+        }
+        
+        function createBudgetChart() {
+            budgetChart = new Chart(budgetCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['城际交通', '住宿', '餐饮美食', '门票活动'],
+                    datasets: [{
+                        data: [
+                            parseInt(sliders.transport.value),
+                            parseInt(sliders.accom.value),
+                            parseInt(sliders.food.value),
+                            parseInt(sliders.activity.value)
+                        ],
+                        backgroundColor: ['#D95550', '#F4A261', '#E9C46A', '#2A9D8F'],
+                        borderColor: '#FEF9F3',
+                        borderWidth: 4,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed !== null) {
+                                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                        label += `${context.raw}元 (${percentage}%)`;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        createBudgetChart();
+        for (const key in sliders) {
+            sliders[key].addEventListener('input', updateBudget);
+        }
+
+        const detailToggles = document.querySelectorAll('.toggle-details');
+        detailToggles.forEach(button => {
+            button.addEventListener('click', () => {
+                const content = button.closest('div').nextElementSibling;
+                content.classList.toggle('open');
+            });
+        });
+
+        const filterContainer = document.getElementById('filter-container');
+        const filterBtns = filterContainer.querySelectorAll('.filter-btn');
+        const highlightCards = document.querySelectorAll('.highlight-card');
+
+        filterContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-btn')) {
+                const filter = e.target.dataset.filter;
+
+                filterBtns.forEach(btn => {
+                    btn.classList.remove('bg-[#2A3D45]', 'text-white');
+                    btn.classList.add('bg-white', 'text-[#2A3D45]');
+                });
+                e.target.classList.add('bg-[#2A3D45]', 'text-white');
+                e.target.classList.remove('bg-white', 'text-[#2A3D45]');
+
+                highlightCards.forEach(card => {
+                    if (filter === 'all' || card.dataset.category === filter) {
+                        card.classList.remove('filtered');
+                    } else {
+                        card.classList.add('filtered');
+                    }
+                });
+            }
+        });
+
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('section[id]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+    });
+    </script>
+</body>
+</html>
+
