@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>内蒙古+宁夏深度游 | 10月1日-10月9日</title>
+    <script src="https://webapi.amap.com/maps?v=2.0&key=2617293f52dbe6c7a7da80d11fa2f429"></script>
+    <script src="https://webapi.amap.com/ui/1.1/main.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 头部样式 */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .date-range {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 30px;
+            border-radius: 50px;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        /* 地图容器 */
+        .map-section {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .map-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        #map-container {
+            width: 100%;
+            height: 600px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 行程时间轴 */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            transform: translateX(-50%);
+        }
+
+        .day-section {
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .day-header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .day-header h3 {
+            color: #667eea;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .day-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .info-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 15px;
+            background: #f0f4ff;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #667eea;
+        }
+
+        .info-tag::before {
+            content: '📍';
+            margin-right: 5px;
+        }
+
+        .info-tag.weather::before {
+            content: '☀️';
+        }
+
+        .info-tag.transport::before {
+            content: '🚗';
+        }
+
+        /* 景区卡片网格 */
+        .attractions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .attraction-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .attraction-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .attraction-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea33 0%, #764ba233 100%);
+        }
+
+        .attraction-content {
+            padding: 20px;
+        }
+
+        .attraction-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .attraction-desc {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .attraction-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .attraction-time {
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        .attraction-price {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .attraction-rating {
+            color: #ffa726;
+            font-size: 0.9rem;
+        }
+
+        /* 路线导航按钮 */
+        .route-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            margin: 10px 5px;
+            transition: transform 0.2s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .route-button:hover {
+            transform: scale(1.05);
+        }
+
+        /* 预算统计 */
+        .budget-section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-top: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .budget-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .budget-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .budget-item {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 15px;
+        }
+
+        .budget-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .budget-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .budget-amount {
+            color: #667eea;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .attractions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            #map-container {
+                height: 400px;
+            }
+        }
+
+        /* 加载动画 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        /* 小红书链接样式 */
+        .xhs-link {
+            display: inline-block;
+            color: #ff2442;
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            transition: opacity 0.3s;
+        }
+
+        .xhs-link:hover {
+            opacity: 0.7;
+        }
+
+        .xhs-link::before {
+            content: '📱 ';
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>🏜️ 内蒙古+宁夏深度游</h1>
+            <p>胡杨林 · 腾格里沙漠 · 草原风光 · 美食之旅</p>
+            <div class="date-range">📅 2025年10月1日 - 10月9日（9天8晚）</div>
+        </div>
+
+        <!-- 地图展示 -->
+        <div class="map-section">
+            <h2>🗺️ 行程路线总览</h2>
+            <div id="map-container"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="javascript:void(0)" class="route-button" onclick="openAmapRoute()">📱 在高德地图中查看完整路线</a>
+                <a href="javascript:void(0)" class="route-button" onclick="showDrivingRoute()">🚗 查看自驾路线</a>
+            </div>
+        </div>
+
+        <!-- 行程详情 -->
+        <div class="timeline">
+            <!-- Day 1 -->
+            <div class="day-section">
+                <div class="day-header">
+                    <h3>Day 1 (10月1日) - 呼和浩特市区游</h3>
+                    <div class="day-info">
+                        <span class="info-tag">呼和浩特</span>
+                        <span class="info-tag weather">晴，10-22℃</span>
+                        <span class="info-tag transport">市内打车</span>
+                    </div>
+                </div>
+                <div class="attractions-grid">
+                    <div class="attraction-card" onclick="showOnMap(111.670121, 40.817498)">
+                        <img src="https://store.is.autonavi.com/showpic/c8739f5cd834fcbc32c6688bf87dedc9" alt="内蒙古博物院" class="attraction-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23667eea33%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23667eea%22 font-size=%2220%22%3E内蒙古博物院%3C/text%3E%3C/svg%3E'">
+                        <div class="attraction-content">
+                            <div class="attraction-title">内蒙古博物院</div>
+                            <div class="attraction-desc">免费参观，需提前预约。重点观看三楼展厅，草原丝绸之路、恐龙化石展等。</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 2.5小时</span>
+                                <span class="attraction-price">免费</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐⭐</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="attraction-card" onclick="showOnMap(111.654621, 40.811054)">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23667eea33%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23667eea%22 font-size=%2220%22%3E大召寺%3C/text%3E%3C/svg%3E" alt="大召寺" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">大召寺</div>
+                            <div class="attraction-desc">明代藏传佛教寺庙，银佛、龙雕、壁画"大召三绝"。</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 1.5小时</span>
+                                <span class="attraction-price">¥35</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="attraction-card" onclick="showOnMap(111.660825, 40.813246)">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23764ba233%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23764ba2%22 font-size=%2220%22%3E塞上老街%3C/text%3E%3C/svg%3E" alt="塞上老街" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">塞上老街</div>
+                            <div class="attraction-desc">明清建筑风格，特色小吃街，购买纪念品好去处。</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 1.5小时</span>
+                                <span class="attraction-price">免费</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 2 -->
+            <div class="day-section">
+                <div class="day-header">
+                    <h3>Day 2 (10月2日) - 火车→巴彦淖尔，自驾→银川</h3>
+                    <div class="day-info">
+                        <span class="info-tag">呼和浩特→巴彦淖尔→银川</span>
+                        <span class="info-tag weather">多云，11-21℃</span>
+                        <span class="info-tag transport">火车+自驾392km</span>
+                    </div>
+                </div>
+                <div class="attractions-grid">
+                    <div class="attraction-card">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23667eea33%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23667eea%22 font-size=%2218%22%3E火车K7915次%3C/text%3E%3C/svg%3E" alt="火车" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">🚄 K7915次 呼和浩特→巴彦淖尔</div>
+                            <div class="attraction-desc">07:55发车，11:49抵达，历时3小时54分钟。硬座¥43.5。</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 3小时54分</span>
+                                <span class="attraction-price">¥43.5</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="attraction-card">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23764ba233%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23764ba2%22 font-size=%2218%22%3E自驾392km%3C/text%3E%3C/svg%3E" alt="自驾" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">🚗 巴彦淖尔→银川自驾</div>
+                            <div class="attraction-desc">G6京藏高速，历时约4.5小时。过路费¥120，油费¥200。</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 4.5小时</span>
+                                <span class="attraction-price">¥320</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 3 -->
+            <div class="day-section">
+                <div class="day-header">
+                    <h3>Day 3 (10月3日) - 银川世界遗产一日游</h3>
+                    <div class="day-info">
+                        <span class="info-tag">银川（西夏王陵+镇北堡+贺兰山）</span>
+                        <span class="info-tag weather">晴，10-23℃</span>
+                        <span class="info-tag transport">打车/拼车</span>
+                    </div>
+                </div>
+                <div class="attractions-grid">
+                    <div class="attraction-card" onclick="showOnMap(106.041, 38.467)">
+                        <img src="http://store.is.autonavi.com/showpic/6174a4d8487f8c7118585ec632fae68e" alt="西夏王陵" class="attraction-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23ffa72633%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23ffa726%22 font-size=%2220%22%3E西夏王陵%3C/text%3E%3C/svg%3E'">
+                        <div class="attraction-content">
+                            <div class="attraction-title">🏛️ 西夏王陵（世界遗产）</div>
+                            <div class="attraction-desc">2025年新晋世界遗产！中国第60项。参观博物馆+3号陵，感受神秘西夏王朝。周一三免门票！</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 3-4小时</span>
+                                <span class="attraction-price">¥68+¥40观光车</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐⭐</span>
+                            </div>
+                            <a href="https://www.xiaohongshu.com/explore/689c1a6e000000001c013f7a" target="_blank" class="xhs-link">省钱攻略：40元玩转5座王陵</a>
+                        </div>
+                    </div>
+                    <div class="attraction-card" onclick="showOnMap(106.272599, 38.487833)">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23667eea33%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23667eea%22 font-size=%2220%22%3E镇北堡西部影城%3C/text%3E%3C/svg%3E" alt="镇北堡西部影城" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">🎬 镇北堡西部影城</div>
+                            <div class="attraction-desc">《大话西游》《红高粱》取景地，中国十大影视基地之一。适合拍照打卡。</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 2小时</span>
+                                <span class="attraction-price">¥100</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="attraction-card" onclick="showOnMap(106.024635, 38.484893)">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23764ba233%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23764ba2%22 font-size=%2220%22%3E贺兰山岩画%3C/text%3E%3C/svg%3E" alt="贺兰山岩画" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">🗿 贺兰山岩画（可选）</div>
+                            <div class="attraction-desc">古代岩画艺术，距今3000-10000年，珍贵文化遗产。时间充裕可增加。</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 2小时</span>
+                                <span class="attraction-price">¥70</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 4 -->
+            <div class="day-section">
+                <div class="day-header">
+                    <h3>Day 4 (10月4日) - 腾格里沙漠五湖穿越</h3>
+                    <div class="day-info">
+                        <span class="info-tag">阿拉善·腾格里沙漠</span>
+                        <span class="info-tag weather">晴，12-25℃</span>
+                        <span class="info-tag transport">越野车穿越</span>
+                    </div>
+                </div>
+                <div class="attractions-grid">
+                    <div class="attraction-card" onclick="showOnMap(105.144897, 38.713083)">
+                        <img src="http://store.is.autonavi.com/showpic/c8739f5cd834fcbc32c6688bf87dedc9" alt="腾格里沙漠" class="attraction-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23ffa72633%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23ffa726%22 font-size=%2220%22%3E腾格里沙漠%3C/text%3E%3C/svg%3E'">
+                        <div class="attraction-content">
+                            <div class="attraction-title">🏜️ 腾格里沙漠五湖穿越</div>
+                            <div class="attraction-desc">天鹅湖、乌兰湖（地球之心）、骆驼湖（粉色湖）、翡翠湖、吉他湖。越野车冲沙+无人机航拍！</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 全天（7小时）</span>
+                                <span class="attraction-price">¥1500-1800/车</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐⭐</span>
+                            </div>
+                            <a href="https://www.xiaohongshu.com/explore/68a6e3be000000001d0221be" target="_blank" class="xhs-link">小红书攻略：人在腾格里沙漠</a>
+                        </div>
+                    </div>
+                    <div class="attraction-card">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23ff424233%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23ff2442%22 font-size=%2218%22%3E地球之心乌兰湖%3C/text%3E%3C/svg%3E" alt="乌兰湖" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">❤️ 乌兰湖"地球之心"</div>
+                            <div class="attraction-desc">夏季湖水呈酒红色，航拍如跳动心脏。7-8月最红，震撼至极！</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 1小时</span>
+                                <span class="attraction-price">含在穿越费用</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐⭐</span>
+                            </div>
+                            <a href="https://www.xiaohongshu.com/explore/68a6e3be000000001d0221be" target="_blank" class="xhs-link">航拍必备！</a>
+                        </div>
+                    </div>
+                    <div class="attraction-card">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23ff91af33%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23ff91af%22 font-size=%2220%22%3E骆驼湖%3C/text%3E%3C/svg%3E" alt="骆驼湖" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">💕 骆驼湖粉色盐湖</div>
+                            <div class="attraction-desc">少女心炸裂！梦幻粉色湖面，美到窒息。穿红/白裙最出片！</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 1小时</span>
+                                <span class="attraction-price">含在穿越费用</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐⭐</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 5 -->
+            <div class="day-section">
+                <div class="day-header">
+                    <h3>Day 5 (10月5日) - 额济纳胡杨林东区</h3>
+                    <div class="day-info">
+                        <span class="info-tag">额济纳旗</span>
+                        <span class="info-tag weather">晴，11-27℃</span>
+                        <span class="info-tag transport">景区摆渡车</span>
+                    </div>
+                </div>
+                <div class="attractions-grid">
+                    <div class="attraction-card" onclick="showOnMap(101.055, 42.015)">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23ffa72633%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23ffa726%22 font-size=%2218%22%3E二道桥倒影林%3C/text%3E%3C/svg%3E" alt="二道桥倒影林" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">🍂 二道桥倒影林</div>
+                            <div class="attraction-desc">必打卡！早晨7:00-9:00水面平静，倒影绝美。红色长裙最出片！</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 2小时</span>
+                                <span class="attraction-price">¥240（含东区+南区）</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐⭐</span>
+                            </div>
+                            <a href="https://www.xiaohongshu.com/explore/68dc7127000000000302fda8" target="_blank" class="xhs-link">小红书：额济胡杨林攻略</a>
+                        </div>
+                    </div>
+                    <div class="attraction-card">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23ff572233%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23ff5722%22 font-size=%2218%22%3E四道桥英雄林%3C/text%3E%3C/svg%3E" alt="四道桥" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">🎬 四道桥英雄林</div>
+                            <div class="attraction-desc">电影《英雄》取景地。胡杨树粗大沧桑，适合拍特写。</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 2小时</span>
+                                <span class="attraction-price">含在门票</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="attraction-card">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23ffa72633%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23ffa726%22 font-size=%2218%22%3E八道桥沙漠%3C/text%3E%3C/svg%3E" alt="八道桥" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">🏜️ 八道桥沙漠王国</div>
+                            <div class="attraction-desc">巴丹吉林沙漠北缘。滑沙、骑骆驼、沙漠越野。傍晚看日落！</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 3小时</span>
+                                <span class="attraction-price">项目另计</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 6 -->
+            <div class="day-section">
+                <div class="day-header">
+                    <h3>Day 6 (10月6日) - 大漠胡杨林+火车返回巴彦淖尔</h3>
+                    <div class="day-info">
+                        <span class="info-tag">额济纳→巴彦淖尔</span>
+                        <span class="info-tag weather">晴，11-27℃</span>
+                        <span class="info-tag transport">火车卧铺</span>
+                    </div>
+                </div>
+                <div class="attractions-grid">
+                    <div class="attraction-card">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%2300bcd433%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%2300bcd4%22 font-size=%2218%22%3E大漠胡杨林南区%3C/text%3E%3C/svg%3E" alt="南区" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">🌊 大漠胡杨林南区</div>
+                            <div class="attraction-desc">私藏推荐！人少、树密、水质好，倒影比东区更出片！</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 3.5小时</span>
+                                <span class="attraction-price">景交¥30</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐⭐</span>
+                            </div>
+                            <a href="https://www.xiaohongshu.com/explore/68dc7127000000000302fda8" target="_blank" class="xhs-link">水镜胡杨打卡点</a>
+                        </div>
+                    </div>
+                    <div class="attraction-card">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23667eea33%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23667eea%22 font-size=%2218%22%3EK7912次%3C/text%3E%3C/svg%3E" alt="火车" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">🚄 K7912次 额济纳→巴彦淖尔</div>
+                            <div class="attraction-desc">17:30发车，次日03:47抵达。硬卧过夜，睡一觉就到！</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 10小时17分</span>
+                                <span class="attraction-price">¥163（硬卧）</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐⭐</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 7 -->
+            <div class="day-section">
+                <div class="day-header">
+                    <h3>Day 7 (10月7日) - 巴彦淖尔→包头自驾游</h3>
+                    <div class="day-info">
+                        <span class="info-tag">巴彦淖尔→包头</span>
+                        <span class="info-tag weather">晴，12-21℃</span>
+                        <span class="info-tag transport">自驾150km</span>
+                    </div>
+                </div>
+                <div class="attractions-grid">
+                    <div class="attraction-card" onclick="showOnMap(109.822, 40.648)">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%2300bcd433%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%2300bcd4%22 font-size=%2218%22%3E赛汗塔拉草原%3C/text%3E%3C/svg%3E" alt="赛汗塔拉" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">🌿 赛汗塔拉城中草原</div>
+                            <div class="attraction-desc">免费！亚洲最大城中草原。城市与草原同框的魔幻画面！可喂梅花鹿。</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 2.5小时</span>
+                                <span class="attraction-price">免费</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐⭐</span>
+                            </div>
+                            <a href="https://www.xiaohongshu.com/explore/6881ed7300000000220304cb" target="_blank" class="xhs-link">点赞2931！本地人带路</a>
+                        </div>
+                    </div>
+                    <div class="attraction-card" onclick="showOnMap(110.045, 40.647)">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23ff572233%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23ff5722%22 font-size=%2218%22%3E北方兵器城%3C/text%3E%3C/svg%3E" alt="兵器城" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">🪖 北方兵器城</div>
+                            <div class="attraction-desc">门票=奶茶钱（15元）！废弃坦克飞机超震撼，军事迷必去！</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 2小时</span>
+                                <span class="attraction-price">¥15</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="attraction-card" onclick="showOnMap(109.846, 40.658)">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23ffa72633%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23ffa726%22 font-size=%2220%22%3E包头金街%3C/text%3E%3C/svg%3E" alt="包头金街" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">🏮 包头金街夜游</div>
+                            <div class="attraction-desc">"塞北洪崖洞"！小吃遍地，灯火辉煌，拍照绝了！茶汤必尝。</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 1.5小时</span>
+                                <span class="attraction-price">免费</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐⭐</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 8 -->
+            <div class="day-section">
+                <div class="day-header">
+                    <h3>Day 8 (10月8日) - 包头→呼和浩特自驾</h3>
+                    <div class="day-info">
+                        <span class="info-tag">包头→呼和浩特</span>
+                        <span class="info-tag weather">多云，10-19℃</span>
+                        <span class="info-tag transport">自驾180km</span>
+                    </div>
+                </div>
+                <div class="attractions-grid">
+                    <div class="attraction-card" onclick="showOnMap(110.202, 41.084)">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23764ba233%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23764ba2%22 font-size=%2220%22%3E五当召%3C/text%3E%3C/svg%3E" alt="五当召" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">🏛️ 五当召（可选）</div>
+                            <div class="attraction-desc">藏传佛教四大名寺，"小布达拉宫"。按日喀则扎什伦布寺建造。</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 2.5小时</span>
+                                <span class="attraction-price">¥60</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐⭐</span>
+                            </div>
+                            <a href="https://www.xiaohongshu.com/explore/6816308a000000000b014d40" target="_blank" class="xhs-link">点赞571推荐</a>
+                        </div>
+                    </div>
+                    <div class="attraction-card" onclick="showOnMap(111.660825, 40.813246)">
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23667eea33%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23667eea%22 font-size=%2218%22%3E塞上老街+宽巷子%3C/text%3E%3C/svg%3E" alt="塞上老街" class="attraction-image">
+                        <div class="attraction-content">
+                            <div class="attraction-title">🛍️ 塞上老街+宽巷子</div>
+                            <div class="attraction-desc">特色小吃街，明清建筑风格，购买特产纪念品。</div>
+                            <div class="attraction-meta">
+                                <span class="attraction-time">⏱ 1.5小时</span>
+                                <span class="attraction-price">免费</span>
+                                <span class="attraction-rating">⭐⭐⭐⭐</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 9 -->
+            <div class="day-section">
+                <div class="day-header">
+                    <h3>Day 9 (10月9日) - 返程日</h3>
+                    <div class="day-info">
+                        <span class="info-tag">呼和浩特</span>
+                        <span class="info-tag">购买特产+返程</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 预算统计 -->
+        <div class="budget-section">
+            <h2>💰 费用预算总览（人均）</h2>
+            <div class="budget-grid">
+                <div class="budget-item">
+                    <div class="budget-icon">🚗</div>
+                    <div class="budget-label">交通费用</div>
+                    <div class="budget-amount">¥1500</div>
+                </div>
+                <div class="budget-item">
+                    <div class="budget-icon">🏨</div>
+                    <div class="budget-label">住宿费用</div>
+                    <div class="budget-amount">¥2100</div>
+                </div>
+                <div class="budget-item">
+                    <div class="budget-icon">🍜</div>
+                    <div class="budget-label">餐饮费用</div>
+                    <div class="budget-amount">¥1350</div>
+                </div>
+                <div class="budget-item">
+                    <div class="budget-icon">🎫</div>
+                    <div class="budget-label">门票费用</div>
+                    <div class="budget-amount">¥680</div>
+                </div>
+                <div class="budget-item">
+                    <div class="budget-icon">🎁</div>
+                    <div class="budget-label">其他费用</div>
+                    <div class="budget-amount">¥370</div>
+                </div>
+                <div class="budget-item" style="grid-column: span 2; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <div class="budget-icon">💵</div>
+                    <div class="budget-label" style="color: white;">总预算</div>
+                    <div class="budget-amount" style="color: white; font-size: 2rem;">¥6000</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 高德地图API Key（请替换为您自己的Key）
+        // 申请地址：https://lbs.amap.com/api/javascript-api/guide/abc/prepare
+        window._AMapSecurityConfig = {
+            securityJsCode: 'YOUR_SECURITY_CODE'
+        };
+
+        let map;
+        let routePoints = [];
+
+        // 初始化地图
+        function initMap() {
+            // 创建地图实例
+            map = new AMap.Map('map-container', {
+                zoom: 6,
+                center: [108.5, 39.5], // 内蒙古中心位置
+                mapStyle: 'amap://styles/whitesmoke',
+                viewMode: '3D',
+                pitch: 45
+            });
+
+            // 添加控件
+            AMap.plugin([
+                'AMap.ToolBar',
+                'AMap.Scale',
+                'AMap.HawkEye',
+                'AMap.MapType',
+                'AMap.Geolocation'
+            ], function() {
+                map.addControl(new AMap.ToolBar());
+                map.addControl(new AMap.Scale());
+            });
+
+            // 行程路线关键点
+            routePoints = [
+                { lnglat: [111.670, 40.657], name: '呼和浩特', day: 'Day 1', icon: '🏙️' },
+                { lnglat: [108.322, 40.818], name: '巴彦淖尔', day: 'Day 2', icon: '🚄' },
+                { lnglat: [106.278, 38.471], name: '银川', day: 'Day 2-3', icon: '🏛️' },
+                { lnglat: [105.145, 38.713], name: '腾格里沙漠', day: 'Day 4', icon: '🏜️' },
+                { lnglat: [101.055, 42.015], name: '额济纳旗', day: 'Day 5-6', icon: '🍂' },
+                { lnglat: [109.840, 40.757], name: '包头', day: 'Day 7', icon: '🌿' },
+                { lnglat: [111.670, 40.657], name: '呼和浩特', day: 'Day 8-9', icon: '🏠' }
+            ];
+
+            // 添加标记点
+            routePoints.forEach((point, index) => {
+                const marker = new AMap.Marker({
+                    position: point.lnglat,
+                    title: point.name,
+                    map: map,
+                    label: {
+                        content: `<div style="background: white; padding: 8px 15px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); font-weight: bold; color: #667eea;">${point.icon} ${point.name}</div>`,
+                        direction: 'top'
+                    }
+                });
+
+                // 添加信息窗体
+                const infoWindow = new AMap.InfoWindow({
+                    content: `
+                        <div style="padding: 10px;">
+                            <h3 style="color: #667eea; margin-bottom: 8px;">${point.name}</h3>
+                            <p style="margin: 5px 0; color: #666;">${point.day}</p>
+                            <a href="#" onclick="showDayDetail(${index})" style="color: #764ba2; text-decoration: none;">查看详情 →</a>
+                        </div>
+                    `
+                });
+
+                marker.on('click', function() {
+                    infoWindow.open(map, marker.getPosition());
+                });
+            });
+
+            // 绘制路线
+            drawRoute();
+        }
+
+        // 绘制行程路线
+        function drawRoute() {
+            const path = routePoints.map(p => p.lnglat);
+            
+            const polyline = new AMap.Polyline({
+                path: path,
+                strokeColor: '#667eea',
+                strokeWeight: 4,
+                strokeStyle: 'solid',
+                strokeOpacity: 0.8,
+                lineJoin: 'round',
+                lineCap: 'round',
+                showDir: true
+            });
+
+            map.add(polyline);
+            map.setFitView();
+        }
+
+        // 显示指定位置
+        function showOnMap(lng, lat) {
+            if (map) {
+                map.setZoomAndCenter(15, [lng, lat]);
+                
+                // 添加临时标记
+                const marker = new AMap.Marker({
+                    position: [lng, lat],
+                    map: map,
+                    animation: 'AMAP_ANIMATION_DROP'
+                });
+
+                setTimeout(() => {
+                    marker.setMap(null);
+                }, 3000);
+            }
+        }
+
+        // 打开高德地图APP查看路线
+        function openAmapRoute() {
+            // 使用高德地图个性化路线规划URI Scheme
+            const points = routePoints.map((p, i) => ({
+                name: p.name,
+                lon: p.lnglat[0],
+                lat: p.lnglat[1],
+                poiId: ''
+            }));
+
+            const lineList = [
+                {
+                    title: '第1-2天：呼和浩特→巴彦淖尔→银川',
+                    pointInfoList: [
+                        { name: '呼和浩特', lon: 111.670, lat: 40.657, poiId: '' },
+                        { name: '巴彦淖尔', lon: 108.322, lat: 40.818, poiId: '' },
+                        { name: '银川', lon: 106.278, lat: 38.471, poiId: '' }
+                    ]
+                },
+                {
+                    title: '第3-4天：银川→腾格里沙漠',
+                    pointInfoList: [
+                        { name: '银川', lon: 106.278, lat: 38.471, poiId: '' },
+                        { name: '腾格里沙漠', lon: 105.145, lat: 38.713, poiId: '' }
+                    ]
+                },
+                {
+                    title: '第5-6天：额济纳旗胡杨林',
+                    pointInfoList: [
+                        { name: '额济纳旗', lon: 101.055, lat: 42.015, poiId: '' }
+                    ]
+                },
+                {
+                    title: '第7-9天：巴彦淖尔→包头→呼和浩特',
+                    pointInfoList: [
+                        { name: '巴彦淖尔', lon: 108.322, lat: 40.818, poiId: '' },
+                        { name: '包头', lon: 109.840, lat: 40.757, poiId: '' },
+                        { name: '呼和浩特', lon: 111.670, lat: 40.657, poiId: '' }
+                    ]
+                }
+            ];
+
+            // 构建高德地图个性化地图URI
+            const orgName = encodeURIComponent('内蒙古+宁夏9日游');
+            const lineListJson = encodeURIComponent(JSON.stringify(lineList));
+            const uri = `https://uri.amap.com/marker?markers=111.670,40.657,呼和浩特|108.322,40.818,巴彦淖尔|106.278,38.471,银川|105.145,38.713,腾格里沙漠|101.055,42.015,额济纳旗|109.840,40.757,包头`;
+            
+            alert('提示：\n1. 在手机上打开此页面可直接跳转高德地图APP\n2. 或复制以下链接在手机浏览器打开：\n' + uri);
+            window.open(uri, '_blank');
+        }
+
+        // 显示自驾路线
+        function showDrivingRoute() {
+            if (!map) return;
+
+            // 清除之前的路线
+            map.clearMap();
+            initMap();
+
+            // 规划驾车路线
+            AMap.plugin('AMap.Driving', function() {
+                const driving = new AMap.Driving({
+                    map: map,
+                    panel: null,
+                    policy: AMap.DrivingPolicy.LEAST_TIME
+                });
+
+                // 巴彦淖尔到银川
+                driving.search(
+                    new AMap.LngLat(108.322, 40.818),
+                    new AMap.LngLat(106.278, 38.471),
+                    function(status, result) {
+                        if (status === 'complete') {
+                            console.log('路线规划成功');
+                        }
+                    }
+                );
+            });
+        }
+
+        // 页面加载完成后初始化地图
+        window.onload = function() {
+            // 检查是否加载了高德地图API
+            if (typeof AMap !== 'undefined') {
+                initMap();
+            } else {
+                document.getElementById('map-container').innerHTML = '<div class="loading">正在加载地图...</div><p style="text-align:center; color:#999; margin-top:20px;">提示：请替换HTML文件中的高德地图API Key<br>申请地址：<a href="https://lbs.amap.com" target="_blank">https://lbs.amap.com</a></p>';
+            }
+        };
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
